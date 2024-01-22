@@ -1,7 +1,7 @@
 use sqlx::{PgConnection, error::BoxDynError, Error, FromRow, types::Uuid};
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, FromRow)]
+#[derive(Serialize, Deserialize, FromRow, Clone)]
 pub struct User {
     pub id: Option<Uuid>,
     pub email: String

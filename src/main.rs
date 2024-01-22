@@ -25,23 +25,22 @@ async fn main() -> Result<(), BoxDynError> {
     // create(&new_user, conn).await?;
 
     let users = get_all(conn).await?;
-    let iter = users.into_iter().next();
-    
-    match iter {
-        Some(user) => {
-            
-            let handler = || async { Ok::<Json<User>, (StatusCode, String)>(Json(user)) };
-            let app = Router::new().route("/", get(handler));
-            
-            axum::Server::bind(&"0.0.0.0:1337".parse().unwrap())
-                .serve(app.into_make_service())
-                .await
-                .unwrap();
-        },
-        None => {
+    // let iter = users.into_iter().next();
+      
+    // let handler = || async { Ok::<Json<User>, (StatusCode, String)>(Json(users)) };
+    // let app = Router::new().route("/", get(handler));
 
+    let app = Router::new().route("/", get(||
+        async {
+            Ok::<Json<Vec<User>>, (StatusCode, String)>(Json(users))
         }
-    }
+    ));
+    
+    axum::Server::bind(&"0.0.0.0:1337".parse().unwrap())
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+
 
     Ok(())
 }
