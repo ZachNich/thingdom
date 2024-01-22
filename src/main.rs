@@ -18,11 +18,11 @@ async fn main() -> Result<(), BoxDynError> {
     // postgresql://[YOUR_USERNAME]:[YOUR_PASSWORD]@[YOUR_HOST_NAME]:[YOUR_PORT]/[DATABASE_NAME]
     let uri = "postgresql://postgres:postgres@localhost:5432/thingdom";
     let mut conn = connect(uri).await?;
-    conn = migrate(conn).await?;
+    migrate(&mut conn).await?;
 
     let new_user = User {
         id: None,
-        email: "myemail@mydomain.com".to_string()
+        email: "e@mydomain.com".to_string()
     };
     create(&new_user, conn).await?;
 
@@ -34,9 +34,9 @@ async fn connect(uri: &str) -> Result<PgConnection, Error> {
     Ok(conn)
 }
 
-async fn migrate(mut conn: PgConnection) -> Result<PgConnection, MigrateError> {
+async fn migrate(conn: &mut PgConnection) -> Result<(), MigrateError> {
     sqlx::migrate!("./migrations")
-        .run(&mut conn)
+        .run(conn)
         .await?;
-    Ok(conn)
+    Ok(())
 }
