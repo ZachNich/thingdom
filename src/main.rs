@@ -1,13 +1,16 @@
 
 use axum::{
     http::StatusCode, 
-    routing::{get, post}, 
+    routing::{
+        get, 
+        post
+    }, 
     Json, 
     Router,
     extract::State
 };
 use user::{
-    create, get_all, User
+    create, create_character, get_all, Character, User
 };
 use sqlx::{
     migrate::MigrateError, 
@@ -68,6 +71,14 @@ async fn get_all_users(State(app_state): State<AppState>) -> Result<Json<Vec<Use
 
 async fn create_user(State(app_state): State<AppState>, Json(user): Json<User>) -> Result<(), StatusCode> {
     if let Ok(()) = create(&user, app_state.db_connection).await {
+        Ok(())
+    } else {
+        Err(StatusCode::UNPROCESSABLE_ENTITY)
+    }
+}
+
+async fn create_character(State(app_state): State<AppState>, Json(character): Json<Character>) -> Result<(), StatusCode> {
+    if let Ok(()) = create_character(&character, app_state.db_connection).await {
         Ok(())
     } else {
         Err(StatusCode::UNPROCESSABLE_ENTITY)
