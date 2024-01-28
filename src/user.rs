@@ -1,28 +1,36 @@
-use sqlx::{PgConnection, error::BoxDynError, Error, FromRow, types::Uuid};
-use serde::{Serialize, Deserialize};
+use sqlx::{
+    types::Uuid, 
+    Error, 
+    FromRow, 
+    PgPool
+};
+use serde::{
+    Serialize, 
+    Deserialize
+};
 
-#[derive(Serialize, Deserialize, FromRow, Clone)]
+#[derive(Serialize, Deserialize, FromRow)]
 pub struct User {
     pub id: Option<Uuid>,
     pub email: String
 }
 
-pub async fn create(user: &User, mut conn: PgConnection) -> Result<(), BoxDynError> {
+pub async fn create(user: &User, conn: PgPool) -> Result<(), Error> {
     let query = "INSERT INTO users (email) VALUES ($1)";
 
     sqlx::query(query)
         .bind(&user.email)
-        .execute(&mut conn)
+        .execute(&conn)
         .await?;
     
     Ok(())
 }
 
-pub async fn get_all(mut conn: PgConnection) -> Result<Vec<User>, Error> {
+pub async fn get_all(conn: PgPool) -> Result<Vec<User>, Error> {
     let query = "SELECT * FROM USERS";
     
     let users = sqlx::query_as::<_, User>(query)
-        .fetch_all(&mut conn)
+        .fetch_all(&conn)
         .await?;
 
     Ok(users)
